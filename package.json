@@ -11,7 +11,9 @@
     "jalaali-js": "^1.2.8",
     "luxon": "^3.7.2",
     "react": "^19.2.0",
+    "react-date-object": "^2.1.9",
     "react-dom": "^19.2.0",
+    "react-multi-date-picker": "^4.5.2",
     "react-scripts": "5.0.1",
     "tabulator-tables": "^6.3.1",
     "web-vitals": "^2.1.4"

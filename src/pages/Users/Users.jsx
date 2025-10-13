@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../../component/Datatable/DataTable";
 import {usersSchema}  from "../../utils/Schema"
+import Filter from "../../component/Filter/Filter";
 import "@fontsource/vazirmatn";           // وزن عادی
 import "@fontsource/vazirmatn/500.css";   // اگر وزن نیمه‌بولد خواستی
 import "@fontsource/vazirmatn/700.css";   // بولد برای تیترها
@@ -12,7 +13,13 @@ const API_KEY = "cb8d0be9c4f8c01e5d6a6273f3c9ab1467df9d8a75c248724105dbe3f1fd547
 const API_URL = "/admin/clients"; 
 
 function Users() {
-  const [data, setData] = useState([]);
+ const [data, setData] = useState([]);
+ const [filters, setFilters] = useState([]);
+
+ const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
 
   useEffect(() => {
     const getData = async () => {
@@ -53,8 +60,9 @@ function Users() {
   return (
     <div>
       <h2>جدول کاربران</h2>
-      <DataTable data={data} schema={usersSchema} />
-    </div>
+      <Filter onFiltersChange={handleFiltersChange} />
+      <DataTable data={data} schema={usersSchema}  filters={filters}/>
+     </div>
   );
 }
 export default Users;

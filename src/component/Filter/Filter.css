@@ -1,0 +1,21 @@
+.apply-section {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.apply-section button {
+  background: linear-gradient(90deg, #615EF0, #7BA9F7);
+  border: none;
+  color: white;
+  font-family: "Vazirmatn";
+  font-size: 14px;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.apply-section button:hover {
+  background: linear-gradient(90deg, #4e4cf0, #68a0fa);
+}
