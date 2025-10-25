@@ -8,6 +8,8 @@ export const usersSchema = [
     sorter: "string",
     headerFilter: false,
     widthGrow: 2,
+    copyable: true,
+
   },
   {
     title: "وضعیت",

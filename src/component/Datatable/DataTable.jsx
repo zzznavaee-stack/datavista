@@ -36,6 +36,38 @@ function DataTable({ data = [], schema, options = {}, filters = [] }) {
       height: "600px",
       ...options,
     });
+    // ✅ فعال‌سازی قابلیت کپی در ستون‌هایی که copyable=true دارن
+tabulatorInstance.current.on("cellClick", function (e, cell) {
+  const column = cell.getColumn().getDefinition();
+
+  if (column.copyable) {
+    const value = cell.getValue();
+    if (value !== null && value !== undefined && value !== "") {
+      navigator.clipboard.writeText(value.toString()).then(() => {
+        const tooltip = document.createElement("div");
+        tooltip.textContent = "کپی شد ✅";
+        tooltip.style.position = "fixed";
+        tooltip.style.background = "#4CAF50";
+        tooltip.style.color = "white";
+        tooltip.style.padding = "5px 10px";
+        tooltip.style.borderRadius = "8px";
+        tooltip.style.fontSize = "14px";
+        tooltip.style.top = `${e.clientY - 30}px`;
+        tooltip.style.left = `${e.clientX}px`;
+        tooltip.style.zIndex = 1000;
+        tooltip.style.transition = "opacity 0.5s ease";
+
+        document.body.appendChild(tooltip);
+
+        setTimeout(() => {
+          tooltip.style.opacity = "0";
+          setTimeout(() => tooltip.remove(), 500);
+        }, 1000);
+      });
+    }
+  }
+});
+
 
     // پاک‌سازی در unmount
     return () => {
