@@ -19,3 +19,13 @@
 .apply-section button:hover {
   background: linear-gradient(90deg, #4e4cf0, #68a0fa);
 }
+.number-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.number-group input[type="number"] {
+  width: 100px;
+  padding: 5px 8px;
+}

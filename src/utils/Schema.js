@@ -56,6 +56,7 @@ export const usersSchema = [
     widthGrow: 1,
     formatter: function (cell) {
       const value = cell.getValue();
+       console.log("rendered cell value:", value);
       if (!value) return "-";
       try {
         const date = DateTime.fromISO(value);

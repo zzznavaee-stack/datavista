@@ -12,32 +12,32 @@ function DataTable({ data = [], schema, options = {}, filters = [] }) {
   const tabulatorInstance = useRef(null);
   const [filterText, setFilterText] = useState("");
 
- 
+  // ⚙️ ساخت یا تخریب جدول اصلی
   useEffect(() => {
-    if (tableRef.current) {
-     
-      if (tabulatorInstance.current) {
-        try {
-          tabulatorInstance.current.destroy();
-        } catch (e) {}
-        tabulatorInstance.current = null;
-      }
+    if (!tableRef.current) return;
 
-     
-      tabulatorInstance.current = new Tabulator(tableRef.current, {
-        columns: schema,
-        data: data,
-        layout: "fitColumns",
-        index: "id",
-        reactiveData: false,
-        autoResize: false,
-        virtualDom: true,
-        height: "600px",
-        ...options,
-      });
+    // اگر جدول قبلاً وجود دارد، پاک شود
+    if (tabulatorInstance.current) {
+      try {
+        tabulatorInstance.current.destroy();
+      } catch (e) {}
+      tabulatorInstance.current = null;
     }
 
-    
+    // ساخت جدید Tabulator
+    tabulatorInstance.current = new Tabulator(tableRef.current, {
+      columns: schema,
+      data: Array.isArray(data) ? data : [],
+      layout: "fitColumns",
+      index: "id",
+      autoResize: true,     // اجازه تغییر اندازه
+      reactiveData: false,  // خودکار رندر مجدد نده
+      virtualDom: true,
+      height: "600px",
+      ...options,
+    });
+
+    // پاک‌سازی در unmount
     return () => {
       if (tabulatorInstance.current) {
         try {
@@ -48,58 +48,113 @@ function DataTable({ data = [], schema, options = {}, filters = [] }) {
     };
   }, [schema, options]);
 
- 
+  // 🧩 به‌روزرسانی داده — فقط وقتی renderer آماده است
   useEffect(() => {
     const table = tabulatorInstance.current;
     if (!table) return;
 
     try {
-      table.replaceData(Array.isArray(data) ? data : []);
+      // بررسی وجود renderer قبل از جایگزینی داده‌ها
+      if (table.table && table.table.renderer) {
+        table.replaceData(Array.isArray(data) ? data : []);
+      }
     } catch (err) {
       console.warn("Tabulator replaceData error:", err);
     }
   }, [data]);
 
-  
+  // 🔍 فیلتر عمومی جستجو در متن
   useEffect(() => {
     const table = tabulatorInstance.current;
     if (!table) return;
 
-    if (filterText.trim() === "") {
-      table.clearFilter(true); 
-    } else {
+    // حذف همه فیلترهای قبلی مربوط به جست‌وجو
+    table.clearFilter(true);
+
+    if (filterText.trim() === "") return;
+
+    try {
       table.setFilter((rowData) =>
         Object.values(rowData).some((val) =>
           String(val).toLowerCase().includes(filterText.toLowerCase())
         )
       );
+    } catch (err) {
+      console.warn("Tabulator text filter error:", err);
     }
   }, [filterText]);
 
- 
-  useEffect(() => {
-    const table = tabulatorInstance.current;
-    if (!table) return;
+  /// 🧮 useEffect برای فیلترهای پیشرفته
+useEffect(() => {
+  const table = tabulatorInstance.current;
+  if (!table) return;
 
-  
-    table.clearFilter();
+  // ابتدا همه فیلترهای قبلی پاک می‌شوند
+  table.clearFilter(true);
 
-   
-    if (!filters || filters.length === 0) return;
+  if (!filters || filters.length === 0) return;
 
-   
+  try {
+    // اعمال هر فیلتر به صورت جداگانه
     filters.forEach((f) => {
-      table.addFilter(f.field, f.type, f.value);
+      console.log("Filter:", f);
+      switch (f.type) {
+        case "equal":
+        case "=":
+          table.addFilter(f.field, "=", f.value);
+          break;
+
+        case "contains":
+        case "like":
+          table.addFilter(f.field, "like", f.value);
+          break;
+
+        case "between":
+          const [min, max] = f.value || [];
+
+          // اگر مقدار عددی است (quota)
+          if (f.field === "quota") {
+            table.addFilter(f.field, ">=", min);
+            table.addFilter(f.field, "<=", max);
+          }
+
+          // اگر مقدار تاریخ است (createdAt)
+       else if (f.field === "createdAt") {
+  // تبدیل مقادیر فیلتر به Date
+  const minDate = new Date(f.value[0]); // شروع بازه
+  const maxDate = new Date(f.value[1]); // پایان بازه
+
+  // اضافه کردن فیلتر به جدول
+  table.addFilter(f.field, "function", (cellValue) => {
+    if (!cellValue) return false;
+
+    const cellDate = new Date(cellValue); // تبدیل مقدار سلول جدول به Date
+
+    // مقایسه سلول با بازه فیلتر
+    return cellDate >= minDate && cellDate <= maxDate;
+  });
+}
+
+          break;
+
+        default:
+          break;
+      }
     });
-  }, [filters]);
+  } catch (err) {
+    console.warn("Tabulator filter error:", err);
+  }
+}, [filters]);
 
 
+
+  // 🎨 رندر نهایی
   return (
     <div dir="rtl" style={{ fontFamily: "Vazirmatn" }}>
       <div style={{ marginBottom: "10px" }}>
         <input
           type="text"
-          placeholder="جستجو در جدول..."
+          placeholder="جست‌وجو در جدول..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
           style={{
@@ -112,6 +167,7 @@ function DataTable({ data = [], schema, options = {}, filters = [] }) {
             boxShadow: "0 1px 6px rgba(185,196,219,0.25)",
             transition: "0.2s",
             fontSize: "18px",
+            outline: "none",
           }}
         />
       </div>

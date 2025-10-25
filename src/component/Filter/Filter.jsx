@@ -1,160 +1,136 @@
+// Filter.jsx
 import React, { useState } from "react";
 import "./Filter.css";
-
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import gregorian from "react-date-object/calendars/gregorian";
+import en from "react-date-object/locales/gregorian_en";
 
 export default function Filter({ onFiltersChange }) {
-
   const [filters, setFilters] = useState({
     name: "",
-    quotaRange: { min: 0, max: 100 },
-    dateRange: { from: null, to: null },
+    quotaMin: "",
+    quotaMax: "",
+    dateFrom: null,
+    dateTo: null,
     status: "",
   });
 
- 
+  // تبدیل تاریخ جلالی به میلادی
+  const convertToGregorian = (jalali) => {
+    if (!jalali) return null;
+    try {
+      const g = jalali.convert(gregorian, en);
+      return g.format("YYYY-MM-DD");
+    } catch {
+      return null;
+    }
+  };
+
+  // ✅ ساختن آرایه فیلترها با منطق بین دو عدد برای سهمیه و بین دو تاریخ برای تاریخ
   const handleApplyFilters = () => {
     const activeFilters = [];
 
-   
-    if (filters.name.trim() !== "")
+    // نام
+    if (filters.name.trim() !== "") {
       activeFilters.push({
         field: "name",
         type: "contains",
         value: filters.name.trim(),
       });
+    }
 
-   
-    if (filters.status)
+    // وضعیت
+    if (filters.status.trim() !== "") {
       activeFilters.push({
         field: "status",
         type: "equal",
-        value: filters.status,
+        value: filters.status.trim(),
       });
+    }
 
-  
-    if (
-      filters.quotaRange.min !== 0 ||
-      filters.quotaRange.max !== 100
-    )
+    // 🔹 سهمیه بین دو عدد
+    const minNum = Number(filters.quotaMin);
+    const maxNum = Number(filters.quotaMax);
+    if (!isNaN(minNum) && !isNaN(maxNum) && filters.quotaMin !== "" && filters.quotaMax !== "") {
       activeFilters.push({
         field: "quota",
         type: "between",
-        value: [filters.quotaRange.min, filters.quotaRange.max],
+        value: [minNum, maxNum],
       });
+    }
 
-    if (filters.dateRange.from && filters.dateRange.to)
+    // 🔹 تاریخ بین دو تاریخ میلادی
+    const fromDate = convertToGregorian(filters.dateFrom);
+    const toDate = convertToGregorian(filters.dateTo);
+    if (fromDate && toDate) {
       activeFilters.push({
         field: "createdAt",
         type: "between",
-        value: [
-          filters.dateRange.from.format("YYYY-MM-DD"),
-          filters.dateRange.to.format("YYYY-MM-DD"),
-        ],
+        value: [fromDate, toDate],
       });
+    }
 
-    
     onFiltersChange(activeFilters);
   };
 
- 
   return (
-    <div className="filter">
-
-      {/* فیلتر نام */}
+    <div className="filter" dir="rtl" style={{ fontFamily: "Vazirmatn" }}>
       <div className="filter-item">
         <label>نام کاربر:</label>
         <input
           type="text"
-          placeholder="جست‌وجو..."
+          placeholder="جست‌وجو نام..."
           value={filters.name}
-          onChange={(e) =>
-            setFilters({ ...filters, name: e.target.value })
-          }
+          onChange={(e) => setFilters({ ...filters, name: e.target.value })}
         />
       </div>
 
-     
+      {/* 🔹 فیلتر سهمیه عددی بین دو مقدار */}
       <div className="filter-item">
         <label>سهمیه:</label>
-        <div className="range-group">
+        <div style={{ display: "flex", gap: "8px" }}>
           <input
-            type="range"
-            min={0}
-            max={100}
-            value={filters.quotaRange.min}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                quotaRange: {
-                  ...filters.quotaRange,
-                  min: Number(e.target.value),
-                },
-              })
-            }
+            type="number"
+            placeholder="از..."
+            value={filters.quotaMin}
+            onChange={(e) => setFilters({ ...filters, quotaMin: e.target.value })}
           />
           <input
-            type="range"
-            min={0}
-            max={100}
-            value={filters.quotaRange.max}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                quotaRange: {
-                  ...filters.quotaRange,
-                  max: Number(e.target.value),
-                },
-              })
-            }
+            type="number"
+            placeholder="تا..."
+            value={filters.quotaMax}
+            onChange={(e) => setFilters({ ...filters, quotaMax: e.target.value })}
           />
         </div>
-        <span className="range-values">
-          {filters.quotaRange.min} تا {filters.quotaRange.max}
-        </span>
       </div>
 
-   
+      {/* 🔹 فیلتر تاریخ بین دو تاریخ */}
       <div className="filter-item">
         <label>تاریخ ثبت:</label>
         <DatePicker
-          value={filters.dateRange.from}
+          value={filters.dateFrom}
           calendar={persian}
           locale={persian_fa}
-          inputClass="date-input"
           placeholder="از تاریخ"
-          onChange={(date) =>
-            setFilters({
-              ...filters,
-              dateRange: { ...filters.dateRange, from: date },
-            })
-          }
+          onChange={(date) => setFilters({ ...filters, dateFrom: date })}
         />
         <DatePicker
-          value={filters.dateRange.to}
+          value={filters.dateTo}
           calendar={persian}
           locale={persian_fa}
-          inputClass="date-input"
           placeholder="تا تاریخ"
-          onChange={(date) =>
-            setFilters({
-              ...filters,
-              dateRange: { ...filters.dateRange, to: date },
-            })
-          }
+          onChange={(date) => setFilters({ ...filters, dateTo: date })}
         />
       </div>
 
-   
+      {/* وضعیت */}
       <div className="filter-item">
         <label>وضعیت:</label>
         <select
           value={filters.status}
-          onChange={(e) =>
-            setFilters({ ...filters, status: e.target.value })
-          }
+          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
         >
           <option value="">همه</option>
           <option value="فعال">فعال</option>
@@ -162,8 +138,7 @@ export default function Filter({ onFiltersChange }) {
         </select>
       </div>
 
-     
-      <div className="filter-item apply-section">
+      <div className="filter-item" style={{ marginTop: "10px" }}>
         <button onClick={handleApplyFilters}>اعمال فیلتر</button>
       </div>
     </div>
