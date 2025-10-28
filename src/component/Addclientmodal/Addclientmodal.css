@@ -1,0 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&display=swap");
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 2rem 2.4rem;
+  width: 400px;
+  border-radius: 16px;
+  box-shadow: 0 0 22px rgba(96, 89, 214, 0.25);
+  font-family: "Vazirmatn", sans-serif;
+  direction: rtl;
+}
+
+.modal-box h2 {
+  margin-bottom: 1.3rem;
+  color: #6059D6;
+  text-align: center;
+  font-weight: 600;
+}
+
+label {
+  display: block;
+  margin-top: 0.8rem;
+  color: #333;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+input,
+select {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.3px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: "Vazirmatn", sans-serif;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #6059D6;
+  box-shadow: 0 0 6px rgba(96, 89, 214, 0.35);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.8rem;
+}
+
+.save-btn {
+  background: #6059D6;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.25s;
+}
+
+.save-btn:hover {
+  background: #4e48bf;
+}
+
+.cancel-btn {
+  background: #C0C0C0;
+  color: #000;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}

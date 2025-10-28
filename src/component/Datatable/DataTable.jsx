@@ -215,7 +215,7 @@ function DataTable({ data = [], schema, options = {}, filters = [] }) {
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
           style={{
-            width: "50%",
+            width: "55%",
             display: "inline-block",
             marginBottom:"20px",
             padding: "20px",
