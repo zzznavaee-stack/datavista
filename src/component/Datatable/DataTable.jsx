@@ -24,7 +24,7 @@ function DataTable({ data = [], schema, options = {}, filters = [] }) {
       tabulatorInstance.current = null;
     }
 
-    // 🟪🟪🟪 بخش جدید: محاسبه خودکار عرض ستون‌ها قبل از ساخت جدول 🟪🟪🟪
+    //  بخش جدید: محاسبه خودکار عرض ستون‌ها قبل از ساخت جدول 
     if (Array.isArray(data) && data.length > 0 && schema) {
       const autoDetectWidths = (rows) => {
         const widths = {};

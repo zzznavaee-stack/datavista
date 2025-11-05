@@ -3,13 +3,18 @@ import jalaali from "jalaali-js";
 
 export const usersSchema = [
   {
+    title: "API Key",
+    field: "rasmioApiKey",          // ✅ فیلد جدید
+    widthGrow: 2,
+    sorter: "string",
+    hozAlign: "center",
+    copyable: true,
+  },
+  {
     title: "نام",
     field: "name",
-    sorter: "string",
-    headerFilter: false,
     widthGrow: 2,
-    copyable: true,
-
+    sorter: "string",
   },
   {
     title: "وضعیت",
@@ -17,7 +22,7 @@ export const usersSchema = [
     sorter: "string",
     hozAlign: "center",
     headerFilter: "select",
-    headerFilterParams: { values: ["فعال", "غیر فعال"] },
+    headerFilterParams: { values: ["فعال", "غیرفعال"] },
     widthGrow: 1,
   },
   {
@@ -25,30 +30,21 @@ export const usersSchema = [
     field: "quota",
     sorter: "number",
     hozAlign: "center",
-    width: 120,
+    width: 100,
   },
   {
     title: "تاریخ ایجاد",
     field: "createdAt",
     hozAlign: "center",
     widthGrow: 1,
-    formatter: function (cell) {
+    formatter: (cell) => {
       const value = cell.getValue();
       if (!value) return "-";
-      try {
-        const date = DateTime.fromISO(value);
-        if (!date.isValid) return "-";
-        const { jy, jm, jd } = jalaali.toJalaali(date.toJSDate());
-        const time = date.toFormat("HH:mm");
-        return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")} ${time}`;
-      } catch {
-        return "-";
-      }
-    },
-    sorter: function (a, b) {
-      const da = DateTime.fromISO(a);
-      const db = DateTime.fromISO(b);
-      return da.toMillis() - db.toMillis(); 
+      const date = DateTime.fromISO(value);
+      if (!date.isValid) return "-";
+      const { jy, jm, jd } = jalaali.toJalaali(date.toJSDate());
+      const time = date.toFormat("HH:mm");
+      return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")} ${time}`;
     },
   },
   {
@@ -56,24 +52,45 @@ export const usersSchema = [
     field: "updatedAt",
     hozAlign: "center",
     widthGrow: 1,
-    formatter: function (cell) {
+    formatter: (cell) => {
       const value = cell.getValue();
-       console.log("rendered cell value:", value);
       if (!value) return "-";
-      try {
-        const date = DateTime.fromISO(value);
-        if (!date.isValid) return "-";
-        const { jy, jm, jd } = jalaali.toJalaali(date.toJSDate());
-        const time = date.toFormat("HH:mm");
-        return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")} ${time}`;
-      } catch {
-        return "-";
-      }
+      const date = DateTime.fromISO(value);
+      if (!date.isValid) return "-";
+      const { jy, jm, jd } = jalaali.toJalaali(date.toJSDate());
+      const time = date.toFormat("HH:mm");
+      return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")} ${time}`;
     },
-    sorter: function (a, b) {
-      const da = DateTime.fromISO(a);
-      const db = DateTime.fromISO(b);
-      return da.toMillis() - db.toMillis(); // ✅ همین تغییر در اینجا هم لازم است
+  },
+  {
+    title: "ویرایش",
+    field: "edit",
+    hozAlign: "center",
+    width: 140,
+    formatter: () => {
+      return `
+        <button class="edit-btn"
+          style="
+            background-color: #6059D6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: Vazirmatn;
+            transition: all 0.2s ease;
+          "
+          onmouseover="this.style.backgroundColor='#4d48b6'"
+          onmouseout="this.style.backgroundColor='#6059D6'"
+        >
+          ویرایش
+        </button>`;
+    },
+    cellClick: (e, cell) => {
+      const rowData = cell.getRow().getData();
+      if (cell.getTable().options.onEditClient) {
+        cell.getTable().options.onEditClient(rowData);
+      }
     },
   },
 ];

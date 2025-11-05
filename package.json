@@ -15,6 +15,7 @@
     "react-dom": "^19.2.0",
     "react-multi-date-picker": "^4.5.2",
     "react-scripts": "5.0.1",
+    "recharts": "^3.3.0",
     "tabulator-tables": "^6.3.1",
     "web-vitals": "^2.1.4"
   },
