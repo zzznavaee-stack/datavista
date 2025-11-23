@@ -1,41 +1,47 @@
-// src/pages/Dashboard.jsx
 import React, { useEffect, useState } from "react";
-import BaseChart from "../component/Basechart/BaseChart";
-import dayjs from "dayjs";       // برای گروه‌بندی تاریخ میلادی
-import jalaliday from "jalaliday"; // برای نمایش تاریخ شمسی
+import BaseChart from "../component/Basechart/BaseChart"
+import dayjs from "dayjs";
+import jalaliday from "jalaliday";
 
-dayjs.extend(jalaliday); // فعال‌سازی افزونه جلالی
+dayjs.extend(jalaliday);
 
-export default function Dashboard() {
+export default function Logs() {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/admin/usage", {
       headers: {
-        "X-Master-Key": "cb8d0be9c4f8c01e5d6a6273f3c9ab1467df9d8a75c248724105dbe3f1fd547a",
+        "X-Master-Key":
+          "cb8d0be9c4f8c01e5d6a6273f3c9ab1467df9d8a75c248724105dbe3f1fd547a",
       },
     })
-      .then(res => res.json())
-      .then(json => {
+      .then((res) => res.json())
+      .then((json) => {
         const arr = Array.isArray(json) ? json : [];
 
-        // گروه‌بندی و تجمیع بر اساس تاریخ
+        // 💎 گروه‌بندی: هر روز → مجموع توکن + تعداد درخواست
         const grouped = arr.reduce((acc, item) => {
           const day = dayjs(item.ts).format("YYYY-MM-DD");
-          acc[day] = (acc[day] || 0) + (item.tokens_used || 0);
+          if (!acc[day]) acc[day] = { used: 0, count: 0 };
+          acc[day].used += item.tokens_used || 0;
+          acc[day].count += 1; // هر لاگ = یک درخواست
           return acc;
         }, {});
 
-        // تبدیل به آرایه برای چارت (با تاریخ شمسی)
-        const result = Object.entries(grouped).map(([day, total]) => ({
-          ts: dayjs(day).calendar("jalali").locale("fa").format("DD MMM"), // "۲۷ آبان"
-          tokens_used: total,
+        // 📆 تبدیل به آرایه برای چارت با تاریخ شمسی
+        const result = Object.entries(grouped).map(([day, values]) => ({
+          ts: dayjs(day)
+            .calendar("jalali")
+            .locale("fa")
+            .format("DD MMM"),
+          tokens_used: values.used,
+          requests_count: values.count,
         }));
 
         setChartData(result);
       })
-      .catch(err => console.error("API Error:", err))
+      .catch((err) => console.error("API Error:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,7 +52,7 @@ export default function Dashboard() {
       type="line"
       data={chartData}
       xKey="ts"
-      yKey="tokens_used"
+      yKeys={["tokens_used", "requests_count"]} // 💎 دو سری داده: توکن و تعداد درخواست
       isDate={false}
     />
   );

@@ -1,17 +1,38 @@
-// src/components/BaseChart/BaseChart.jsx
 import React, { useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { toJalaali } from "jalaali-js";
 
-const BRAND = { main: "#6059D6", gray: "#C0C0C0" };
+const BRAND = {
+  main: "#6059D6",
+  gray: "#C0C0C0",
+};
 
-export default function BaseChart({ type = "line", data, xKey, yKey, isDate = false }) {
+// 🎨 پالت رنگ برای چند خط
+const COLORS = ["#6059D6", "#FF7F50", "#00BFA6", "#8884d8"];
+
+export default function BaseChart({
+  type = "line",
+  data,
+  xKey,
+  yKey,
+  yKeys,
+  isDate = false,
+}) {
   const safeData = useMemo(() => {
     if (!data) return [];
     const raw = Array.isArray(data?.data) ? data.data : data;
     return Array.isArray(raw) ? raw : [];
   }, [data]);
 
+  // 🕒 تبدیل تاریخ میلادی به جلالی برای محور X
   const tickFormatter = (v) => {
     if (!isDate) return v;
     try {
@@ -30,7 +51,29 @@ export default function BaseChart({ type = "line", data, xKey, yKey, isDate = fa
         <XAxis dataKey={xKey} tickFormatter={tickFormatter} />
         <YAxis />
         <Tooltip />
-        <Line type="monotone" dataKey={yKey} stroke={BRAND.main} dot={false} />
+
+        {/* ✅ پشتیبانی از چند yKey با رنگ‌های متفاوت */}
+        {Array.isArray(yKeys) && yKeys.length > 0 ? (
+          yKeys.map((key, i) => (
+            <Line
+              key={key}
+              type="monotone"
+              dataKey={key}
+              stroke={COLORS[i % COLORS.length]}
+              dot={false}
+              strokeWidth={2}
+            />
+          ))
+        ) : (
+          // حالت سازگار با نسخه قدیمی (فقط یک yKey)
+          <Line
+            type="monotone"
+            dataKey={yKey}
+            stroke={BRAND.main}
+            dot={false}
+            strokeWidth={2}
+          />
+        )}
       </LineChart>
     </ResponsiveContainer>
   );
